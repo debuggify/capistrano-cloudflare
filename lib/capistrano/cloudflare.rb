@@ -56,8 +56,8 @@ module Capistrano
 
               logger.info("\n Purging #{filepath} \n")
 
-              purge_file ( filepath, 'http')
-              purge_file (filepath, 'https')
+              purge_file( filepath, 'http')
+              purge_file(filepath, 'https')
             end
           end
 
