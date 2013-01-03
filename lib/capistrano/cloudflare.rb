@@ -35,7 +35,6 @@ module Capistrano
       configuration.load do
         namespace :cloudflare do
           namespace :file do
-            logger.info("filepath http: #{responsehttp['result'] == 'success'} https: #{responsehttps['result'] == 'success'}  ")
 
             def purge_file (filepath, protocol)
               response = capistrano_cloudflare.send_request( {url: "#{protocol}://#{filepath}"}.merge(cloudflare_options) )
