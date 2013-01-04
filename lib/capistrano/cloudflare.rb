@@ -18,7 +18,7 @@ module Capistrano
         :email => options[:email]
       }
 
-      if options[:url].present?
+      if !options[:url].nil?
         payload[:v] = 1
         payload[:a] = 'zone_file_purge'
       else
@@ -37,26 +37,30 @@ module Capistrano
           namespace :file do
 
             def purge_file (filepath, protocol)
-              response = capistrano_cloudflare.send_request( {url: "#{protocol}://#{filepath}"}.merge(cloudflare_options) )
 
-              if response['result'] == 'success'
+              response = capistrano_cloudflare.send_request( {:url => "#{protocol}://#{filepath}"}.merge(cloudflare_options) )
+              res = response['result'] == 'success'
+              if res
                 logger.info(" #{protocol}: Yes")
               else
                 logger.info(" #{protocol}: No    Reason: #{response['msg'] || 'unknown.'}")
               end
+              return res
             end
 
             desc "Purge the CloudFlare single file"
-            task :purge, :filename do |t, args|
-              # raise unless fetch(:cloudflare_options).respond_to?(:[])
+            task "purge", [:filename] => [:environment]  do |t, args|
+              raise unless fetch(:cloudflare_options).respond_to?(:[])
               domain = cloudflare_options[:domain];
-              filename = args.filename
+              filename = args[:filename]
+              # filename = 'ankur.jpg'
               filepath = "www.#{domain}/assets/#{filename}"
 
               logger.info("\n Purging #{filepath} \n")
 
               purge_file( filepath, 'http')
               purge_file(filepath, 'https')
+
             end
           end
 
